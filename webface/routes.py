@@ -1,7 +1,8 @@
 from . import app
 from flask import render_template, request, redirect, url_for, session
 import functools
-
+from .models import User
+from pony.orm import db_session
 # from werkzeug.security import check_password_hash
 
 slova = ("Super", "Perfekt", "Úža", "Flask")
@@ -19,7 +20,11 @@ def prihlasit(function):
 
 
 @app.route("/", methods=["GET"])
+@db_session
 def index():
+    for user in User.select():
+        print (user.nick)
+        print (user.passwd)
     return render_template("base.html.j2")
 
 
