@@ -1,6 +1,7 @@
 from . import app
-from flask import render_template, request, redirect, url_for, session
+from flask import render_template, request, redirect, url_for, session, flash
 import functools
+from werkzueg.security import check_password_hash, generate_password_hash 
 from .models import User
 from pony.orm import db_session
 # from werkzeug.security import check_password_hash
@@ -22,25 +23,57 @@ def prihlasit(function):
 @app.route("/", methods=["GET"])
 @db_session
 def index():
+    temp = []
     for user in User.select():
-        print (user.nick)
-        print (user.passwd)
+        temp.append ((user.nick, user.passwd))       
     return render_template("base.html.j2")
 
 
-@app.route("/info/")
-def info():
-    return render_template("info.html.j2")
+@app.route("/add/", methods=["GET"])
+def add():
+    return render_template("add.html.j2")
+
+@app.route("/add/", methods=["POST"])
+@db_session
+def add_post():
+    nick = request.form.get("nick")
+    passwd1 = request.form.get("passwd1")
+    passwd2 = request.form.get("passwd2")
+
+    if not all([nick,passwd1,passwd2]):
+        flash("Musíš vše vyplnit")
+
+    else:
+        user = User.get (nick=nick)
+        if user:
+            flash("Tento uživatel již existuje!")
+        elif passwd1 != passwd2:
+            flash("Hesla nejsou stejná!")
+
+        else:
+
+            user = User(nick=nick, passwd=generate_password_hash(passwd1))
+            flash("Uživatel vytvořen")
 
 
-@app.route("/abc/")
+
+
+    return redirect(url_for("add"))    
+
+
+@app.route("/abc/", methods=["POST"])
 def abc():
     return render_template("abc.html.j2", slova=slova)
 
 
-@app.route("/text/")
-def text():
-    return """
+
+@app.route("/login/", methods=["POST"])
+@db_session
+def login_post():
+    return render_template("login.html.j2")
+    
+"""
+
 
 <h1>Text</h1>
 

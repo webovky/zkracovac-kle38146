@@ -1,0 +1,21 @@
+{% extends 'base.html.j2' %}
+
+{%block title%}User add{%endblock%}
+
+{% block obsah %}
+
+<h1>Vytvoření uživatelského účtu</h1>
+
+
+<form method="post">
+
+Nick: <input type="text" name="nick"> <br>
+heslo poprvé: <input type="password" name="passwd1"> <br>
+heslo podruhé: <input type="password" name="passwd2"><br>
+<button>Vytvoř mi účet!</button>
+</form>
+
+
+
+
+{% endblock obsah %}
