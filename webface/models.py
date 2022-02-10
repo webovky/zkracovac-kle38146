@@ -5,7 +5,6 @@ from pony.orm import PrimaryKey, Required, Optional, Database, Set
 db = Database()
 db.bind(provider="sqlite", filename="./database.sqlite", create_db=True)
 
-
 class User(db.Entity):
     id = PrimaryKey(int, auto=True)
     nick = Required(str, unique=True)
@@ -19,7 +18,5 @@ class Addresses(db.Entity):
     url = Required(str)
     shorcut = Required(str)
     user = Optional(User)
-
-
 
 db.generate_mapping(create_tables=True)

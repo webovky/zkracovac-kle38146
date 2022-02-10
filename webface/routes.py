@@ -1,12 +1,11 @@
 from . import app
+from .models import User
 from flask import render_template, request, redirect, url_for, session, flash
 import functools
-from werkzueg.security import check_password_hash, generate_password_hash 
-from .models import User
-from pony.orm import db_session
-# from werkzeug.security import check_password_hash
 
-slova = ("Super", "Perfekt", "Úža", "Flask")
+from werkzeug.security import check_password_hash, generate_password_hash
+
+from pony.orm import db_session
 
 
 def prihlasit(function):
@@ -25,13 +24,14 @@ def prihlasit(function):
 def index():
     temp = []
     for user in User.select():
-        temp.append ((user.nick, user.passwd))       
-    return render_template("base.html.j2")
+        temp.append([user.nick, user.passwd])
+    return render_template("base.html.j2", temp=temp)
 
 
 @app.route("/add/", methods=["GET"])
 def add():
     return render_template("add.html.j2")
+
 
 @app.route("/add/", methods=["POST"])
 @db_session
@@ -40,40 +40,55 @@ def add_post():
     passwd1 = request.form.get("passwd1")
     passwd2 = request.form.get("passwd2")
 
-    if not all([nick,passwd1,passwd2]):
-        flash("Musíš vše vyplnit")
-
+    if not all([nick, passwd1, passwd2]):
+        flash("Musíš vyplnit všechna políčka", "error")
     else:
-        user = User.get (nick=nick)
+        user = User.get(nick=nick)
         if user:
-            flash("Tento uživatel již existuje!")
+            flash("Tento uživatel již existuje", "error")
         elif passwd1 != passwd2:
-            flash("Hesla nejsou stejná!")
-
+            flash("Hesla nejsou stejná", "error")
         else:
-
             user = User(nick=nick, passwd=generate_password_hash(passwd1))
-            flash("Uživatel vytvořen")
+            flash("Uživatel úspěšně vytvořen!", "success")
+            session["nick"] = nick
+
+    return redirect(url_for("add"))
 
 
-
-
-    return redirect(url_for("add"))    
-
-
-@app.route("/abc/", methods=["POST"])
-def abc():
-    return render_template("abc.html.j2", slova=slova)
-
+@app.route("/login/")
+def login():
+    return render_template("login.html.j2")
 
 
 @app.route("/login/", methods=["POST"])
 @db_session
 def login_post():
-    return render_template("login.html.j2")
-    
-"""
+    nick = request.form.get("nick")
+    passwd = request.form.get("passwd")
 
+    if all([nick, passwd]):
+        user = User.get(nick=nick)
+        if user and check_password_hash(user.passwd, passwd):
+            session["nick"] = nick
+            flash("Jsi přihlášen!", "success")
+            return redirect(url_for("index"))
+        else:
+            flash("Špatné přihlašovací údaje!", "error")
+    else:
+        flash("Zadej přihlašovací údaje!", "error")
+    return redirect(url_for("login"))
+
+
+@app.route("/logout/")
+def logout():
+    session.pop("nick", None)
+    return redirect(url_for("index"))
+
+
+@app.route("/text/")
+def text():
+    return """
 
 <h1>Text</h1>
 
