@@ -1,16 +1,10 @@
 from . import app
-<<<<<<< HEAD
 from .models import User, Addresses
 
 from flask import render_template, request, redirect, url_for, session, flash
 import functools
 import random
 import string
-=======
-from .models import User
-from flask import render_template, request, redirect, url_for, session, flash
-import functools
->>>>>>> 0ea08b67427689b1fd62791f84a881b3ac70f91e
 
 from werkzeug.security import check_password_hash, generate_password_hash
 
@@ -31,14 +25,20 @@ def prihlasit(function):
 @app.route("/", methods=["GET"])
 @db_session
 def index():
-<<<<<<< HEAD
     shorcut = request.args.get("shorcut")
     if shorcut and Addresses.get(shorcut=shorcut):
         # shorcut je v DB
         pass
     else:
-        shocut = None
-    return render_template("base.html.j2", shorcut=shorcut)
+        shortcut = None
+
+    if "nick" in session:
+        user = User.get(nick=session["nick"])
+        addresses = Addresses.select(lambda a: a.user == user)
+        
+        
+
+    return render_template("base.html.j2", shorcut=shorcut, addresses=list(addresses))
 
 
 @app.route("/", methods=["POST"])
@@ -75,12 +75,6 @@ def shorcut_get(shorcut):
         return redirect(url)
     else:
         return redirect(url_for("index"))
-=======
-    temp = []
-    for user in User.select():
-        temp.append([user.nick, user.passwd])
-    return render_template("base.html.j2", temp=temp)
->>>>>>> 0ea08b67427689b1fd62791f84a881b3ac70f91e
 
 
 @app.route("/add/", methods=["GET"])
@@ -98,11 +92,7 @@ def add_post():
     if not all([nick, passwd1, passwd2]):
         flash("Musíš vyplnit všechna políčka", "error")
     else:
-<<<<<<< HEAD
         user = User.get(nick=nick)  # vrátí uživatele s nick == nick
-=======
-        user = User.get(nick=nick)
->>>>>>> 0ea08b67427689b1fd62791f84a881b3ac70f91e
         if user:
             flash("Tento uživatel již existuje", "error")
         elif passwd1 != passwd2:
@@ -111,18 +101,10 @@ def add_post():
             user = User(nick=nick, passwd=generate_password_hash(passwd1))
             flash("Uživatel úspěšně vytvořen!", "success")
             session["nick"] = nick
-<<<<<<< HEAD
-
-    return redirect(url_for("add"))
-=======
->>>>>>> 0ea08b67427689b1fd62791f84a881b3ac70f91e
 
     return redirect(url_for("add"))
 
-<<<<<<< HEAD
-=======
 
->>>>>>> 0ea08b67427689b1fd62791f84a881b3ac70f91e
 @app.route("/login/")
 def login():
     return render_template("login.html.j2")

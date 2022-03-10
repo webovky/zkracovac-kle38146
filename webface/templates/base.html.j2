@@ -43,13 +43,6 @@
   </div>
   {% endif %}
   {% endwith%}
-<<<<<<< HEAD
-=======
-
-{% block obsah %}
-<main>
-
->>>>>>> 0ea08b67427689b1fd62791f84a881b3ac70f91e
 
 {% block obsah %}
 <main>
@@ -64,6 +57,26 @@
 {% if shorcut %}
   <p class="shorcut">Zkratka: <a href="{{ url_for('shorcut_get', shorcut=shorcut) }}">{{ request.root_url + shorcut }}</a></p>
 {% endif %}
+
+
+
+{% if "nick" in session and addresses %}
+  
+  <h2>Zkratky</h2>
+  <table>
+  {% for addr in addresses %}
+    <tr>
+      <td><a href= "{{request.root_url + addr.shortcut}}">{{addr.shortcut}}</a></td>
+      <td>{{addr.url}}</td>
+
+    </tr>
+  {% endfor %}
+  </table>
+{% endif %}
+
+
+
+
 
 {#{% filter markdown %}#}
 
