@@ -30,15 +30,14 @@ def index():
         # shorcut je v DB
         pass
     else:
-        shortcut = None
-
+        shorcut = None
     if "nick" in session:
         user = User.get(nick=session["nick"])
         addresses = Addresses.select(lambda a: a.user == user)
-        
-        
-
-    return render_template("base.html.j2", shorcut=shorcut, addresses=list(addresses))
+        return render_template(
+            "base.html.j2", shorcut=shorcut, addresses=list(addresses)
+        )
+    return render_template("base.html.j2", shorcut=shorcut)
 
 
 @app.route("/", methods=["POST"])
@@ -50,7 +49,7 @@ def index_post():
         shorcut = "".join([random.choice(string.ascii_letters) for i in range(7)])
         address = Addresses.get(
             shorcut=shorcut
-        )  # hledám jesli v DB náhodou takto zkratk až není
+        )  # hledám jesli v DB náhodou takto zkratka až není
         while address is not None:
             shorcut = "".join([random.choice(string.ascii_letters) for i in range(7)])
             address = Addresses.get(shorcut=shorcut)
@@ -66,6 +65,18 @@ def index_post():
         return redirect(url_for("index", shorcut=shorcut))
     else:
         return redirect(url_for("index"))
+
+
+@app.route("/remove", methods=["POST"])
+@db_session
+def remove_post():
+    if "nick" in session:
+        rmid = request.form.get("rmid")
+        user = User.get(nick=session["nick"])
+        addr = Addresses.get(id=rmid, user=user)
+        if addr:
+            addr.delete()
+    return redirect(url_for("index"))
 
 
 @app.route("/<path:shorcut>/", methods=["GET"])
