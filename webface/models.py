@@ -19,4 +19,5 @@ class Addresses(db.Entity):
     shorcut = Required(str, unique=True)
     user = Optional(User)
 
+
 db.generate_mapping(create_tables=True)
